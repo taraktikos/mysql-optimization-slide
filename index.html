@@ -38,32 +38,101 @@
 			<div class="slides">
 
 				<section>
-					<h1>Оптимізація MySQL</h1>
                     <img src="img/mysql.png"/>
-                    <h4>Що повинен знати кожен розробник</h4>
+                    <h2>Performance Optimization</h2>
 				</section>
 
-                <section data-markdown>
-                    ## План
+                <!--<section data-markdown>-->
+                    <!--## План-->
 
-                    * Типи таблиць
-                    * Тюнінг mysql
-                    * Утиліти
-                    * Запити
-                    * Поради
-                </section>
+                    <!--* Типи таблиць-->
+                    <!--* Тюнінг mysql-->
+                    <!--* Утиліти-->
+                    <!--* Запити-->
+                    <!--* Поради-->
+                <!--</section>-->
                 <section>
                     <section>
-                        <h2>Типи таблиць</h2>
+                        <h2>Пошук вузьких місць</h2>
                     </section>
 
                     <section>
-                        <h2>MyIsam</h2>
-                        <ul>
-                            <li class="fragment">Не підтримує транзакції</li>
-                            <li class="fragment">Блокування на рівні таблиці</li>
+                        <h2>Еталонне тестування (benchmarking)</h2>
+                        <p>Дозволяє виміряти продуктивність системи</p>
+
+                        <h2>Профілювання (profiling)</h2>
+                        <p>Дозволяє знайти місця де програма витрачає найбільше часу і споживає найбільше ресурсів</p>
+                    </section>
+
+                    <section>
+                        <h3>Дві стратегії тестування</h3>
+                        <p class="fragment"><strong>Повне</strong> - тестування програми загалом</p>
+                        <p class="fragment"><strong>Компонентне</strong> - тестування конкретного компонента</p>
+                    </section>
+
+                    <section>
+                        <h3>Інструменти повного тестування</h3>
+                        <ul style="list-style: none;">
+                            <li class="fragment"><strong><em><a target="_blank" href="http://httpd.apache.org/docs/2.2/programs/ab.html">ab</a></em></strong> - Показує скільки запитів в секунду здатет обслужити HTTP-сервер </li>
+                            <li class="fragment"><strong><em><a target="_blank" href="http://www.acme.com/software/http_load/">http_load</a></em></strong> - Призначений для створення навантаження на сервер</li>
+                            <li class="fragment"><strong><em><a target="_blank" href="http://jakarta.apache.org/jmeter/">JMeter</a></em></strong> - Потужніша альтернатива з графічним інтефейсом та гнучким налаштування емуляції користувачів</li>
                         </ul>
                     </section>
+
+                    <section>
+                        <h3>Інструменти компонентного тестування</h3>
+                        <ul style="list-style: none;">
+                            <li class="fragment"><strong><em><a target="_blank" href="http://dev.mysql.com/doc/refman/5.5/en/mysqlslap.html">mysqlslap</a></em></strong> - емулює навантаження на сервер і показує дані хронометража. Можна налаштувати кількість одночасних з'єднань та передати команди</li>
+                            <li class="fragment"><strong><em><a target="_blank" href="http://sysbench.sourceforge.net">sysbench</a></em></strong> - Призначений для представлення продуктивності ОС</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Профілювання MySQL</h3>
+                    </section>
+
+                    <section>
+                        <h3>Ведення протоколу запитів</h3>
+                        <pre><code>
+#log_slow_queries < 5.5.24
+slow_query_log_file     = /var/log/mysql/mysql-slow.log
+slow_query_log          = 1
+long_query_time         = 1
+log-queries-not-using-indexes
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Приклад з логу повільних запитів</h3>
+                        <pre><code>
+# Time: 130508 12:25:33
+# User@Host: root[root] @ localhost []  Id:    18
+# Query_time: 2.464897  Lock_time: 0.000068 Rows_sent: 1000  Rows_examined: 1000
+SET timestamp=1368005133;
+SELECT * FROM cities ORDER BY `name` DESC LIMIT 1000;
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Інструменти аналізу логів</h3>
+                        <ul style="list-style: none;">
+                            <li class="fragment"><strong><em>mysqldumpslow</em></strong> - Показує скільки раз кожеш запит з'являється в журналі повільних запитів </li>
+                            <li class="fragment"><strong><em><a target="_blank" href="http://www.mysqlperformanceblog.com/files/utils/mysql_slow_log_filter">mysql_slow_log_filter</a></em></strong> - Майже як попердній з додатковими параметрами: мінімальний поріг часу та кількість рядків
+                            <pre><code>
+tail -f mysql-slow.log | mysql_slow_log_filter -T 0.5 -R 1000
+                            </code></pre></li>
+                            <li class="fragment"><strong><em><a target="_blank" href="http://www.mysql­performanceblog.com/files/utils/mysql_slow_log_parser">mysql_slow_log_ parser</a></em></strong> - Створює звіт, показує min,max час, запит до якого можна застосувати EXPLAIN</li>
+                        </ul>
+                    </section>
+
+                </section>
+
+                <section>
+
+                    <section>
+                        <h2>Оптимізація схеми та індексування</h2>
+                    </section>
+
                 </section>
 
 			</div>
