@@ -136,17 +136,45 @@ tail -f mysql-slow.log | mysql_slow_log_filter -T 0.5 -R 1000
                     <section>
                         <h2>Типи індексів</h2>
                         <ul style="list-style: none;">
-                            <li class="fragment"><strong>B-Tree-індекси</strong> - </li>
-                            <li class="fragment"><strong>Хеш-індекси</strong> - </li>
+                            <li class="fragment">B-Tree індекси</li>
+                            <li class="fragment">Хеш-індекси</li>
+                            <li class="fragment">Повнотекстові індекси (FULLTEXT)</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2>Типи індексів</h2>
-                        <ul style="list-style: none;">
-                            <li class="fragment"><strong>B-Tree-індекси</strong> - </li>
-                            <li class="fragment"><strong>Хеш-індекси</strong> - </li>
+                        <h2>B-Tree індекси</h2>
+                        <p>Корисні лише в тому випадку коли використовується ліва частина ключа</p>
+                        <ul>
+                            <li class="fragment">Пошук по значенню ключа</li>
+                            <li class="fragment">По діапазону ключів</li>
+                            <li class="fragment">По префіксу ключа</li>
                         </ul>
+                    </section>
+
+                    <section>
+                        <h2>Хеш-індекси</h2>
+                        <p>Корисні лише для точного пошуку із використанням всіх стовбців індекса</p>
+                        <p>Обмеження</p>
+                        <ul>
+                            <li class="fragment">Не використовується для сортування</li>
+                            <li class="fragment">Не підтримує пошук по частині ключа</li>
+                            <li class="fragment">Не підтримує пошук по діапазону</li>
+                            <li class="fragment">При збільшенні колізій зменшується швидкість</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Ізоляція стовпця</h2>
+                        <p>MySql не може використовувати індекс по стовпцю, якщо він не ізольований в запиті</p>
+                        <pre><code>
+SELECT actor_id FROM sakila.actor WHERE actor_id + 1 = 5;
+SELECT actor_id FROM sakila.actor WHERE actor_id = 4;
+
+SELECT ... WHERE TO_DAYS(CURRENT_DATE) - TO_DAYS(date_col) <= 10;
+SELECT ... WHERE date_col >= DATE_SUB(CURRENT_DATE, INTERVAL 10 DAY);
+SELECT ... WHERE date_col >= DATE_SUB(‘2013-01-17’, INTERVAL 10 DAY);
+                        </code></pre>
                     </section>
 
                 </section>
