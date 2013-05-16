@@ -16,7 +16,7 @@
 
 		<link rel="stylesheet" href="css/reveal.min.css">
 		<link rel="stylesheet" href="css/theme/serif.css" id="theme">
-		<link rel="stylesheet" href="css/custom.css" id="theme">
+		<link rel="stylesheet" href="css/custom.css" >
 
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -165,15 +165,41 @@ tail -f mysql-slow.log | mysql_slow_log_filter -T 0.5 -R 1000
                     </section>
 
                     <section>
+                        <h2>Піддослідна база даних "Працівники"</h2>
+                        <p>Структура</p>
+                        <img src="img/employees.png" />
+                        <img src="img/dep_emp.png" />
+                        <img src="img/dep.png" />
+                        <img src="img/dep_manager.png" />
+                        <img src="img/salaries.png" />
+                        <img src="img/titles.png" />
+                    </section>
+
+                    <section>
                         <h2>Ізоляція стовпця</h2>
                         <p>MySql не може використовувати індекс по стовпцю, якщо він не ізольований в запиті</p>
                         <pre><code>
-SELECT actor_id FROM sakila.actor WHERE actor_id + 1 = 5;
-SELECT actor_id FROM sakila.actor WHERE actor_id = 4;
+SELECT first_name FROM employees WHERE emp_no + 1 = 11001;
+SELECT first_name FROM employees WHERE emp_no = 11000;
 
-SELECT ... WHERE TO_DAYS(CURRENT_DATE) - TO_DAYS(date_col) <= 10;
-SELECT ... WHERE date_col >= DATE_SUB(CURRENT_DATE, INTERVAL 10 DAY);
-SELECT ... WHERE date_col >= DATE_SUB(‘2013-01-17’, INTERVAL 10 DAY);
+SELECT first_name, hire_date FROM employees WHERE YEAR(CURRENT_DATE) - YEAR(hire_date) <= 14;
+SELECT first_name, hire_date FROM employees WHERE hire_date >= DATE_SUB(CURRENT_DATE, INTERVAL 14 YEAR);
+SELECT first_name, hire_date FROM employees WHERE hire_date >= DATE_SUB('2013-01-17', INTERVAL 14 YEAR);
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Explain</h2>
+                        <img src="img/explain_2_6_1.png">
+                        <img src="img/explain_2_6_2.png">
+                    </section>
+
+                    <section>
+                        <h2>Індекси по декількох стовпцях</h2>
+                        <pre><code>
+SELECT last_name, first_name FROM salaries
+LEFT JOIN employees USING(emp_no)
+WHERE from_date = '1995-12-03' AND to_date = '1996-12-02'
                         </code></pre>
                     </section>
 
@@ -191,6 +217,9 @@ SELECT ... WHERE date_col >= DATE_SUB(‘2013-01-17’, INTERVAL 10 DAY);
 			// Full list of configuration options available here:
 			// https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
+                width: 1200,
+                minScale: 1,
+                maxScale: 1.0,
 				controls: true,
 				progress: true,
 				history: true,
