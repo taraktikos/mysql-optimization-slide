@@ -321,6 +321,7 @@ SELECT * FROM cities ORDER BY `name` DESC LIMIT 1000;
                     <section>
                         <h3>Інструменти аналізу логів</h3>
                         <ul style="list-style: none;">
+                            <li class="fragment">wget http://www.maatkit.org/get/mk-query-digest</li>
                             <li class="fragment"><strong><em>mysqldumpslow</em></strong> - Показує скільки раз кожеш запит з'являється в журналі повільних запитів </li>
                             <li class="fragment"><strong><em><a target="_blank" href="http://www.mysqlperformanceblog.com/files/utils/mysql_slow_log_filter">mysql_slow_log_filter</a></em></strong> - Майже як попердній з додатковими параметрами: мінімальний поріг часу та кількість рядків
                             <pre><code>
@@ -463,8 +464,8 @@ WHERE from_date = '1995-12-03' AND to_date = '1996-12-02'
 					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
 					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
 					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
-					// { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
-					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+					 //{ src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } },
+					 //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
 				]
 			});
 
