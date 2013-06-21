@@ -6,3 +6,13 @@
     font-size: 18px !important;
     text-align: justify !important;
 }
+
+.table-bordered td, .table-bordered th {
+    border: 2px solid black;
+    font-size: 21px;
+    padding: 5px;
+}
+
+.table-bordered {
+    border-collapse:collapse;
+}
