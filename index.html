@@ -285,116 +285,135 @@ COMMIT;
                     </section>
 
                     <section>
-                        <h2>MyIsam</h2>
-                        <ul style="list-style: none;">
-                            <li class="fragment">Блокування на рівні таблиці. Підтримується можливість додавати нові рядки в момент, коли виконуюються запити на читання (конкурентні вставки)</li>
-                            <li class="fragment">Підтримується повнотекстовий індекс.</li>
-                            <li class="fragment">REPEATABLE READ Он гарантирует, что любые строки,
-                                которые считываются в  контексте транзакции, будут «выглядеть
-                                такими же» при последовательных операциях чтения в  пределах
-                                одной и  той же транзакции, однако теоретически на этом уровне
-                                возможен феномен фантомного чтения</li>
-                            <li class="fragment">SERIALIZABLE В двух словах,
-                                уровень SERIALIZABLE блокирует каждую строку, которую транзак-
-                                ция читает. На этом уровне может возникать множество задержек
-                                и  конфликтов при блокировках.</li>
+                        <h3>MyIsam</h3>
+                        <ul>
+                            <li>Один із найстаріших сховищ в MySQL</li>
+                            <li>Швидкий, добре працює у випадку "багато читаємо, мало пишем"</li>
+                            <li>Підтримує повнотекстові індекси</li>
+                            <li>Індекс - B-tree</li>
+                            <li>Підтримується дописування в кінець (коли виконуюються запити на читання (конкурентні вставки))</li>
+                            <li>Блокування на рівні таблиць</li>
+                            <li>Не підтримується цілісність даних між таблицями</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2>MyISAM Merge</h2>
-                        <p>Подсис­
-                            тема хранения Merge является вариацией на тему MyISAM. Таб­
-                            лица типа Merge представляет собой объединение нескольких струк-
-                            турно одинаковых таб­
-                            лиц MyISAM в  одну виртуальную таб­
-                            лицу. Это
-                            особенно полезно, когда вы используете MySQL для протоколирования
-                            и  организации хранилищ данных.</p>
+                        <h3>MyIsam на диску</h3>
+                        <ul>
+                            <li>Кожна база - це окремий каталог</li>
+                            <li>Файли frm описують структуру таблиці</li>
+                            <li>MDY/MYI містять дані і індекси відповідно</li>
+                            <li>Підтримується перенесення простим копіюванням файлів</li>
+                        </ul>
                     </section>
 
                     <section>
-                        <h2>Підсистема InnoDB</h2>
+                        <h3>Сховище InnoDB</h3>
+                        <ul>
+                            <li>Підтримує ACID</li>
+                            <li>Блокування на рівні рядка</li>
+                            <li>Підтримує зовнішні ключі</li>
+                            <li>У версії MySQL 5.6 підтримує повнотекстовий індекс</li>
+                        </ul>
                     </section>
 
                     <section>
-                        <h2>Подсистема Memory</h2>
+                        <h3>InnoDB на диску</h3>
+                        <ul>
+                            <li>Всі дані зберігаються в загальному просторі даних (ibdata* ніколи не зменшується в розмірі)</li>
+                            <li>Можна налаштувати так, щоб дані, які відносяться до одної таблиці зберігались в окремих файлах
+                                ibd (параметр <em>innodb_file_per_table</em>)</li>
+                        </ul>
+                    </section>
+
+
+                    <section>
+                        <h3>MyISAM Merge</h3>
+                        <p style="text-align: justify">Це підсистема являється варіацією на тему MyISAM. Таблиця типу Merge представляє собою об'єднання
+                            декількох структурно однакових таблиць MyISAM в одну віртуальну таблицю. Корисно використовувати для ведення
+                            логів і організації сховищ даних.</p>
+                    </section>
+
+
+                    <section>
+                        <h3>Підсистема Memory</h3>
+                        <p style="text-align: justify">Корисна коли необхідно виконувати бистрий доступ до даних, якщо нема необхідності
+                        в їх збереженні після перезапуску, для кешування періодично агрегованих даних, для проміжних результатів при аналізі даних.
+                        Після перезапуску сервера структура зберігається, а дані втрачаються
+                        </p>
+                        <ul>
+                            <li>Підтримуються HASH індекси</li>
+                            <li>Блокування на рівні таблиці</li>
+                            <li>Не підтримує TEXT і BLOB</li>
+                            <li>Допускаються тільки рядки фіксованого розміру (varchar -> char)</li>
+                        </ul>
                     </section>
 
                     <section>
-                        <h2>Подсистема Archive</h2>
+                        <h3>Підсистема Archive</h3>
+                        <p style="text-align: justify">Дозволяє виконувати тільки команди INSERT і SELECT. З версії MySQL 5.1 підтримується
+                            індексування (в обмеженому вигляді). Рядки які вставляються зжимаються бібліотекою <em>zlib</em>.
+                            Кожеш запит SELECT потребує повного сканування.
+                        </p>
+                        <p style="text-align: justify">Використовується для збору даних, в тих випадках коли при аналізі треба
+                            сканувати всю таблицю, а також коли необхідно забезпечити швидке виконання інсертів на головному сервері реплікації.
+                        </p>
                     </section>
 
                     <section>
-                        <h2>Подсистема CSV</h2>
+                        <h3>Підсистема CSV</h3>
+                        <p style="text-align: justify">
+                            Розглядає CSV файли як таблиці, але не підтримує індекси по них.
+                        </p>
                     </section>
 
                     <section>
-                        <h2>Подсистема Blackhole</h2>
-                    </section>
-
-                    <section>
-                        <h2>Подсистема NDB Cluster</h2>
-                    </section>
-
-                    <section>
-                        <h2>Подсистема Maria</h2>
+                        <h3>Підсистема Blackhole</h3>
+                        <p style="text-align: justify">
+                            В підсистемі Blackhole взагалі немає механізму зберігання даних. Команди INSERT ігноруються.
+                        </p>
+                        <p style="text-align: justify">
+                            Використовується для налаштування реплікацій і ведення журналу аудиту.
+                        </p>
                     </section>
                 </section>
 
                 <section>
                     <section>
                         <h2>Пошук вузьких місць</h2>
-                    </section>
-                </section>
-
-                <section>
-                    <section>
-                        <h2>Пошук вузьких місць</h2>
-                    </section>
-
-                    <section>
-                        <h2>Еталонне тестування (benchmarking)</h2>
-                        <p>Дозволяє виміряти продуктивність системи</p>
-
-                        <h2>Профілювання (profiling)</h2>
-                        <p>Дозволяє знайти місця де програма витрачає найбільше часу і споживає найбільше ресурсів</p>
-                    </section>
-
-                    <section>
-                        <h3>Дві стратегії тестування</h3>
-                        <p class="fragment"><strong>Повне</strong> - тестування програми загалом</p>
-                        <p class="fragment"><strong>Компонентне</strong> - тестування конкретного компонента</p>
-                    </section>
-
-                    <section>
-                        <h3>Інструменти повного тестування</h3>
-                        <ul style="list-style: none;">
-                            <li class="fragment"><strong><em><a target="_blank" href="http://httpd.apache.org/docs/2.2/programs/ab.html">ab</a></em></strong> - Показує скільки запитів в секунду здатет обслужити HTTP-сервер </li>
-                            <li class="fragment"><strong><em><a target="_blank" href="http://www.acme.com/software/http_load/">http_load</a></em></strong> - Призначений для створення навантаження на сервер</li>
-                            <li class="fragment"><strong><em><a target="_blank" href="http://jakarta.apache.org/jmeter/">JMeter</a></em></strong> - Потужніша альтернатива з графічним інтефейсом та гнучким налаштування емуляції користувачів</li>
-                        </ul>
                     </section>
 
                     <section>
                         <h3>Інструменти компонентного тестування</h3>
                         <ul style="list-style: none;">
-                            <li class="fragment"><strong><em><a target="_blank" href="http://dev.mysql.com/doc/refman/5.5/en/mysqlslap.html">mysqlslap</a></em></strong> - емулює навантаження на сервер і показує дані хронометража. Можна налаштувати кількість одночасних з'єднань та передати команди</li>
-                            <li class="fragment"><strong><em><a target="_blank" href="http://sysbench.sourceforge.net">sysbench</a></em></strong> - Призначений для представлення продуктивності ОС</li>
+                            <li><strong><em><a target="_blank" href="http://dev.mysql.com/doc/refman/5.5/en/mysqlslap.html">mysqlslap</a></em></strong> - емулює навантаження на сервер і показує дані хронометража. Можна налаштувати кількість одночасних з'єднань та передати команди</li>
+                            <li><strong><em><a target="_blank" href="http://sysbench.sourceforge.net">sysbench</a></em></strong> - Призначений для представлення продуктивності ОС</li>
+                            <li><strong><em><a target="_blank" href="http://sourceforge.net/projects/osdldbt/">Database Test Suite</a></em></strong></li>
+                            <li><strong><em><a target="_blank" href="http://dev.mysql.com/doc/refman/5.5/en/mysql-benchmarks.html">MySQL Benchmark Suite</a></em></strong></li>
+                            <li>...</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h3>Профілювання MySQL</h3>
+                        <h3>Mysqlslap</h3>
+                        <pre><code>
+mysqlslap --user=root -proot --auto-generate-sql
+          --concurrency=300 --iterations=5 --number-of-queries=100
+mysqlslap --user=root -proot test --delimiter=";"
+          --create="CREATE TABLE a (b int);INSERT INTO a VALUES (23)"
+          --query="SELECT * FROM a" --concurrency=50 --iterations=200
+mysqlslap --user=root -proot --create-schema="test_employees"
+          --query=query.sql --concurrency=100
+                        </code></pre>
                     </section>
 
                     <section>
-                        <h3>Ведення протоколу запитів</h3>
+                        <h3>Ведення протоколу повільних запитів</h3>
                         <pre><code>
 #log_slow_queries < 5.5.24
 slow_query_log_file     = /var/log/mysql/mysql-slow.log
 slow_query_log          = 1
-long_query_time         = 1
+long_query_time         = 0.1
 log-queries-not-using-indexes
                         </code></pre>
                     </section>
@@ -413,16 +432,53 @@ SELECT * FROM cities ORDER BY `name` DESC LIMIT 1000;
                     <section>
                         <h3>Інструменти аналізу логів</h3>
                         <ul style="list-style: none;">
-                            <li class="fragment">wget http://www.maatkit.org/get/mk-query-digest</li>
-                            <li class="fragment"><strong><em>mysqldumpslow</em></strong> - Показує скільки раз кожеш запит з'являється в журналі повільних запитів </li>
-                            <li class="fragment"><strong><em><a target="_blank" href="http://www.mysqlperformanceblog.com/files/utils/mysql_slow_log_filter">mysql_slow_log_filter</a></em></strong> - Майже як попердній з додатковими параметрами: мінімальний поріг часу та кількість рядків
+                            <li><strong><em>mysqldumpslow</em></strong> - Показує скільки раз кожен запит з'являється в журналі повільних запитів </li>
+                            <li><strong><em><a target="_blank" href="http://www.mysqlperformanceblog.com/files/utils/mysql_slow_log_filter">mysql_slow_log_filter</a></em></strong> - Майже як попердній з додатковими параметрами: мінімальний поріг часу та кількість рядків
                             <pre><code>
-tail -f mysql-slow.log | mysql_slow_log_filter -T 0.5 -R 1000
+mysql_slow_log_filter -T 3 -R 1000 < /var/log/mysql/mysql-slow-query.log
                             </code></pre></li>
-                            <li class="fragment"><strong><em><a target="_blank" href="http://www.mysql­performanceblog.com/files/utils/mysql_slow_log_parser">mysql_slow_log_ parser</a></em></strong> - Створює звіт, показує min,max час, запит до якого можна застосувати EXPLAIN</li>
+                            <li><strong><em><a target="_blank" href="http://www.maatkit.org/doc/mk-query-digest.html">mk-query-digest</a></em></strong>
+                                <pre><code>
+mk-query-digest /var/log/mysql/mysql-slow-query.log
+                                </code></pre></li>
+                            </li>
+                            <li><strong><em><a target="_blank" href="http://www.mysql­performanceblog.com/files/utils/mysql_slow_log_parser">mysql_slow_log_ parser</a></em></strong> - Створює звіт, показує min,max час, запит до якого можна застосувати EXPLAIN</li>
                         </ul>
                     </section>
 
+                    <section>
+                        <h3>Команда EXPLAIN</h3>
+                        <pre><code>
+EXPLAIN SELECT SQL_NO_CACHE emp_no FROM salaries WHERE salary = 8000;
+                        </code></pre>
+                        <img src="img/explain.png">
+                    </section>
+
+                    <section>
+                        <h3>Команда EXPLAIN</h3>
+                        <ul>
+                            <li><strong>select_type</strong> - показує якому запиту відповідає рядок (SIMPLE|PRIMARY|SUBQUERY|DERIVED|UNION|UNION RESULT)</li>
+                            <li><strong>table</strong> - до якої таблиці відноситься рядок</li>
+                            <li><strong>type</strong> - вказує на метод пошуку рядків (ALL|index|range|ref|eq_ref|const,system|NULL)</li>
+                            <li><strong>possible_keys</strong> - показує які індекси можна було б задіяти</li>
+                            <li><strong>key</strong> - показує який індекс використовується</li>
+                            <li><strong>key_len</strong> - показує яка довжина індекса використовується</li>
+                            <li><strong>ref</strong> - показує які стовбці або константи використовуються для пошуку в індексі</li>
+                            <li><strong>rows</strong> - скільки рядків треба прочитати щоб знайти результат</li>
+                            <li><strong>Extra</strong> - показує додаткову інформацію (Using index|Using where|Using temporary|Using filesort)</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>EXPLAIN EXTENDED</h3>
+                        <ul>
+                            <li><strong>filtered</strong> - показує відсоток рядків що задовольняють заданому критерію</li>
+                        </ul>
+                        <pre><code>
+SHOW WARNINGS\G;
+                        </code></pre>
+                        <img src="img/explain_extend.png">
+                    </section>
                 </section>
 
                 <section>
