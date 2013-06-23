@@ -482,44 +482,71 @@ SHOW WARNINGS\G;
                 </section>
 
                 <section>
-
                     <section>
                         <h2>Оптимізація запитів та індексування</h2>
                     </section>
 
                     <section>
-                        <h2>Типи індексів</h2>
+                        <p style="text-align: justify">
+                            <strong>Індекси</strong> представляють собою структури, які допомагають MySQL ефективно знаходити дані.
+                        </p>
+                        <p style="text-align: justify">
+                            Індексування, в основному, являється головною причиною проблем з продуктивністю в реальних умовах.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h3>Типи індексів</h3>
                         <ul style="list-style: none;">
-                            <li class="fragment">B-Tree індекси</li>
-                            <li class="fragment">Хеш-індекси</li>
-                            <li class="fragment">Повнотекстові індекси (FULLTEXT)</li>
+                            <li>B-Tree індекси</li>
+                            <li>Хеш-індекси</li>
+                            <li>Повнотекстові індекси (FULLTEXT)</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2>B-Tree індекси</h2>
-                        <p>Корисні лише в тому випадку коли використовується ліва частина ключа</p>
+                        <h3>B-Tree індекс</h3>
+                        <img src="img/btree_index.png">
+                        <a href="http://ats.oka.nu/b-tree/b-tree.manual.html">http://ats.oka.nu/b-tree/b-tree.manual.html</a>
+                    </section>
+
+                    <section>
+                        <h3>B-Tree індекс</h3>
+                        <p style="text-align: justify">Використовуються при:</p>
                         <ul>
-                            <li class="fragment">Пошук по значенню ключа</li>
-                            <li class="fragment">По діапазону ключів</li>
-                            <li class="fragment">По префіксу ключа</li>
+                            <li>пошуці по значенню ключа</li>
+                            <li>по діапазону ключів</li>
+                            <li>по префіксу ключа</li>
+                            <li>корисні лише коли використовується лівий префікс ключа</li>
                         </ul>
+                        <pre><code>
+CREATE INDEX index_name ON table_name (column(length));
+                        </code></pre>
+                        <p style="text-align: justify">
+                            В InnoDB використовується модифікація B+Tree (<a href="http://www.cs.usfca.edu/~galles/visualization/BPlusTree.html">Demo</a>)
+                        </p>
                     </section>
 
                     <section>
-                        <h2>Хеш-індекси</h2>
-                        <p>Корисні лише для точного пошуку із використанням всіх стовбців індекса</p>
-                        <p>Обмеження</p>
+                        <h3>Хеш-індекси</h3>
+                        <p style="text-align: justify">Корисні лише для точного пошуку із використанням всіх стовбців індекса</p>
+                        <p style="text-align: justify">Обмеження:</p>
                         <ul>
-                            <li class="fragment">Не використовується для сортування</li>
-                            <li class="fragment">Не підтримує пошук по частині ключа</li>
-                            <li class="fragment">Не підтримує пошук по діапазону</li>
-                            <li class="fragment">При збільшенні колізій зменшується швидкість</li>
+                            <li>Не використовується для сортування</li>
+                            <li>Не підтримує пошук по частині ключа</li>
+                            <li>Не підтримує пошук по діапазону</li>
+                            <li>При збільшенні колізій зменшується швидкість</li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2>Піддослідна база даних "Працівники"</h2>
+                        <h3>Повнотекстові індекси</h3>
+                        <p style="text-align: justify">Дозволяє шукати в тексті ключові слова а не просто порівнювати шукане значення із значенням в стовбці.</p>
+                        <p style="text-align: justify">Призначений для операцій <em>MATCH AGAINST</em> і не прцює в конструкції <em>WHERE</em></p>
+                    </section>
+
+                    <section>
+                        <h3>База даних "Працівники"</h3>
                         <p>Структура</p>
                         <img src="img/employees.png" />
                         <img src="img/dep_emp.png" />
@@ -530,7 +557,7 @@ SHOW WARNINGS\G;
                     </section>
 
                     <section>
-                        <h2>Ізоляція стовпця</h2>
+                        <h3>Ізоляція стовпця</h3>
                         <p>MySql не може використовувати індекс по стовпцю, якщо він не ізольований в запиті</p>
                         <pre><code>
 SELECT first_name FROM employees WHERE emp_no + 1 = 11001;
@@ -558,19 +585,43 @@ WHERE from_date = '1995-12-03' AND to_date = '1996-12-02'
                     </section>
 
                     <section>
-                        <h2>Багатоколоночні (окремі) індекси vs комбіновані індекси</h2>
+                        <h3>Покриваючі індекси</h3>
+                        <p style="text-align: justify">
+                            MySQL може використовувати індекси для витягування даних не читаючи рядки в таблиці. Індекс, який містить дані необхідні
+                            для формування називається <strong>покриваючим</strong>.
+                        </p>
                     </section>
 
                     <section>
-                        <h2>Покриваючі індекси</h2>
+                        <p style="text-align: justify">
+                            Наприклад, посторінкову навігацію, якщо даних багато, можа оптимізувати наступним чином.
+                        </p>
+                        <pre><code>
+SELECT film_id, description FROM sakila.film ORDER BY title LIMIT 50, 5;
+                        </code></pre>
 
-                        індекс і сортування
+                        <pre><code>
+SELECT film.film_id, film.description
+FROM sakila.film INNER JOIN (
+    SELECT film_id FROM sakila.film
+    ORDER BY title LIMIT 50, 5
+) AS lim USING(film_id);
+                        </code></pre>
                     </section>
 
                     <section>
-                        <h2>Індекс і посторінкова навігація</h2>
-
-
+                        <h3>Індекси і сортування</h3>
+                            <ul>
+                                <li>Використовуються обмеження як і при пошукових запитах (використовується лівий префікс ключа)</li>
+                                <li>Якщо використовується не ліва частина, то в пошуковий запит повинен заповнити пропуск</li>
+                                <li>Якщо з'єднується декілька таблиць, використовуються індекси з першої таблиці</li>
+                            </ul>
+<pre><code>
+#(from_date, to_date)
+SELECT last_name, first_name FROM salaries
+LEFT JOIN employees USING(emp_no)
+WHERE from_date = '1995-12-03' ORDER BY to_date
+</code></pre>
                     </section>
                 </section>
 
