@@ -625,12 +625,98 @@ WHERE from_date = '1995-12-03' ORDER BY to_date
                     </section>
                 </section>
 
+
+
                 <section>
-                    <h2>Нормалізація і денормалізація</h2>
+                    <section>
+                        <h2>Реплікація</h2>
+                    </section>
+
+                    <section>
+                        <p style="text-align: justify">Основне завдання реплікації - це синхронізація даних одного сервера на іншому.</p>
+                        <p style="text-align: justify">До одного головного серверу можна підключити декілька залежних (slave), при чому залежний сервер може
+                        виступати в ролі головного</p>
+                    </section>
+
+                    <section>
+                        <h3>Проблеми, які вирішує реплікація</h3>
+                        <ul>
+                            <li><em>Поширення даних</em> - збереження копії в географічно віддаленому місці</li>
+                            <li><em>Балансування навантаження</em> - з її допомогою можна розпреділити запити на читання між декільками серверами</li>
+                            <li><em>Резервне копіювання</em></li>
+                            <li><em>Висока доступність і аварійне перемикання на резервний сервер</em></li>
+                            <li><em>Тестування нових версій MySQL</em></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Як працює реплікація</h3>
+                        <ol>
+                            <li>Головний сервер записує зміни у бінарний лог. Ці записи називаються <em>подіями бінарного логу</em></li>
+                            <li>Залежний сервер копіює події бінарного логу в свій журнал ретрансляцій (relay log)</li>
+                            <li>Залежний сервер відтворює події з логу ретрансляцій, виконуючи зміни до власних даних</li>
+                        </ol>
+                    </section>
+
+                    <section>
+                        <img height="500" src="img/replication.png">
+                    </section>
+
+                    <section>
+                        <h3>Налаштування головного сервера</h3>
+<pre><code>
+CREATE DATABASE test_replication;
+GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO repl@'%' IDENTIFIED BY 'password';
+</code></pre>
+<pre><code>
+server-id     = 1
+log_bin       = /var/log/mysql/mysql-bin.log
+#binlog_wild_do_table = test_replication.%
+binlog_do_db             = test_replication
+</code></pre>
+<pre><code>
+SHOW MASTER STATUS;
+</code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Налаштування залежного сервера</h3>
+<pre><code>
+GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO repl@'%' IDENTIFIED BY 'password';
+</code></pre>
+<pre><code>
+server-id         = 2
+log_bin           = /var/log/mysql/mysql-bin.log
+relay_log         = /var/log/mysql/mysql-relay-bin.log
+log_slave_updates = 1 #вказує щоб залежний сервер записував події в свій власний бінарний лог
+read_only         = 1
+#replicate_wild_do_table = test_replication.%
+replicate_do_db             = test_replication
+</code></pre>
+                    </section>
+
+                    <section>
+                        <h3>Запуск залежного сервера</h3>
+                        <pre><code>
+CHANGE MASTER TO MASTER_HOST='192.168.1.5',
+MASTER_USER='repl',
+MASTER_PASSWORD='password',
+MASTER_LOG_FILE='mysql-bin.000001',
+MASTER_LOG_POS=0;
+                        </code></pre>
+                        <pre><code>
+SHOW SLAVE STATUS\G
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <img src="img/master_status.png">
+                        <img src="img/slave_status.png">
+                    </section>
                 </section>
 
                 <section>
-                    <h2>Реплікація</h2>
+                    <h2>Дякую за увагу!</h2>
                 </section>
 			</div>
 
