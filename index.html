@@ -48,6 +48,7 @@
                     * Іторія MySql
                     * Архітектура
                     * Типи сховищ
+                    * Типи даних
                     * Пошук вузьких місць
                     * Оптимізація запитів та індексування
                     * Оптимізація параметрів сервера
@@ -157,7 +158,7 @@
                     </section>
 
                     <section>
-                        <h3>Транзакции</h3>
+                        <h3>Транзакції</h3>
                         <p>
                             Транзакцією називається атомарна група запитів SQL
                         </p>
@@ -192,22 +193,22 @@ COMMIT;
                             <li>
                                 <strong>READ UNCOMMITTED</strong> - транзакції можуть бачити результати незафіксовани транзакцій
                             </li>
-                            <li class="fragment">
+                            <li class="">
                                 <strong>READ COMMITTED</strong> - транзакції можуть бачити тільки ті зміни, які були зафіксовані
                                 іншими транзакціями до моменту її початку, а створені нею зміни будуть невидимі доки вона не буде зафіксована.
                                 Можливий феномен <em>неповторюваного читання</em>
                             </li>
-                            <li class="fragment">
+                            <li class="">
                                 <strong>REPEATABLE READ</strong> (стоїть за замовчуванням) - гарантує, що будь-які рядки які читаються в контексті транзакції
                                 будуть такі ж як і при послідовних операціях читання в межах однієї транзації.
                                 Можливий феномен <em>фантомного читання</em>
                             </li>
-                            <li class="fragment">
+                            <li class="">
                                 <strong>SERIALIZABLE</strong> - блокує кожну строку, яку транзакція читає. На цьому рівні виникає
                                 багато затримок і конфліктів при блокуваннях.
                             </li>
                         </ul>
-                        <div class="fragment">
+                        <div class="">
                             <pre><code>
                                 [mysqld]
                                 transaction-isolation = REPEATABLE-READ
@@ -382,6 +383,72 @@ COMMIT;
 
                 <section>
                     <section>
+                        <h2>Типи даних</h2>
+                    </section>
+
+                    <section>
+                        <h3>Типи FLOAT/DOUBLE/DECIMAL</h3>
+                        <p style="text-align: justify">
+                            <strong>FLOAT, DOUBLE</strong> - дійсні типи, які допускають приблизні матетматичні обчислення.
+                        </p>
+                        <p style="text-align: justify">
+                            <strong>DECIMAL</strong> - призначений для зберігання точних дробових значень. Використовується для операцій з грошима DECIMAL(10,2).
+                        </p>
+                    </section>
+
+                    <section>
+                        <h3>Типи VARCHAR і CHAR</h3>
+                        <p style="text-align: justify">
+                            <strong>VARCHAR</strong> - рядковий тип даних динамічної довжини.
+                        </p>
+                        <p style="text-align: justify">
+                            <strong>CHAR</strong> - рядковий тип даних фіксованої довжини. Корисний, коли необхідно зберігати дуже короткі рядки,
+                            або всі значення мають однакову довжину.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h3>Типи Datetime і Timestamp</h3>
+                        <p style="text-align: justify">
+                            <strong>DATETIME</strong> - дозволяє зберігати час у діапазоні з 1001 до 9999 року. Зберігається у вигляді цілого числа в форматі
+                            YYYYMMDDHHMMSS <strong>незалежно від часового поясу</strong>. Використовує 8 байт.
+                        </p>
+                        <pre><code>
+create table `dt1` (col datetime NOT NULL);
+
+SET @@session.time_zone='+00:00';
+insert into dt1 values(now());
+
+SET @@session.time_zone='+01:00';
+insert into dt1 values(now());
+
+SET @@session.time_zone='+00:00'; #не залежно від часового поясу дата буде однаковою
+select * from dt1;
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <p style="text-align: justify">
+                            <strong>Timestamp</strong> - зберігає ціле число (4 байти) яке дорівнює кількості секунд з 1 січня 1970 року по Грінвічу. Діапазон з 1970 до 2038 року.
+                            При отриманні з бази <strong>відображається з врахуванням часового поясу</strong>. По завмовченню NOT NULL.
+                        </p>
+                        <pre><code>
+create table tm1 (col timestamp not null);
+
+SET @@session.time_zone='+00:00';
+insert into tm1 values(now());
+
+SET @@session.time_zone='+01:00';
+insert into tm1 values(now());
+
+SET @@session.time_zone='+00:00'; #при зміні часового поясу дата буде відповідно змінюватися
+select * from tm1;
+                        </code></pre>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
                         <h2>Пошук вузьких місць</h2>
                     </section>
 
@@ -481,6 +548,13 @@ SHOW WARNINGS\G;
                         </code></pre>
                         <img src="img/explain_extend.png">
                     </section>
+
+                    <section>
+                        <h3>Команда SHOW PROCESSLIST</h3>
+                        <p style="text-align: justify">Показує список підключень в даний момент часу.</p>
+                        <p style="text-align: justify">SHOW FULL PROCESSLIST - показує повний текст запиту в колонці info</p>
+                        <img src="img/show_processlist.png">
+                    </section>
                 </section>
 
                 <section>
@@ -548,6 +622,25 @@ CREATE INDEX index_name ON table_name (column(length));
                     </section>
 
                     <section>
+                        <h3>Кластерні індекси</h3>
+                        <p style="text-align: justify">Кластерні індекси не являються окремим типом індекса. Скоріше, це підхід до збереження даних.</p>
+                        <p style="text-align: justify">Кожна таблиця в InnoDB містить кластерний індекс</p>
+                        <p style="text-align: justify">Поля вибираються в такому порядку:</p>
+                        <ul>
+                            <li>Primary key</li>
+                            <li>Перший Unique key</li>
+                            <li>Інакше, InnoDB створює приховане поле (ID)</li>
+                        </ul>
+                        <p style="text-align: justify">В InnoDB кластерний індекс фактично містить B-Tree індекс, і самі рядки в одній структурі</p>
+                        <p style="text-align: justify">Вузлові сторінки містять тільки індексовані стовпці, а листові ще й дані</p>
+
+                    </section>
+
+                    <section>
+                        <img src="img/claster_index.png">
+                    </section>
+
+                    <section>
                         <h3>База даних "Працівники"</h3>
                         <p>Структура</p>
                         <img src="img/employees.png" />
@@ -599,16 +692,39 @@ WHERE from_date = '1995-12-03' AND to_date = '1996-12-02'
                             Наприклад, посторінкову навігацію, якщо даних багато, можа оптимізувати наступним чином.
                         </p>
                         <pre><code>
-SELECT film_id, description FROM sakila.film ORDER BY title LIMIT 50, 5;
+SELECT SQL_NO_CACHE emp_no, from_date FROM salaries ORDER BY emp_no LIMIT 2100000,5
                         </code></pre>
 
                         <pre><code>
-SELECT film.film_id, film.description
-FROM sakila.film INNER JOIN (
-    SELECT film_id FROM sakila.film
-    ORDER BY title LIMIT 50, 5
-) AS lim USING(film_id);
+SELECT SQL_NO_CACHE salaries.*
+FROM salaries
+INNER JOIN (
+    SELECT emp_no, from_date
+    FROM salaries
+    ORDER BY emp_no
+    LIMIT 2100000,5
+) AS sal
+ON(salaries.emp_no = sal.emp_no AND salaries.from_date = sal.from_date);
                         </code></pre>
+                    </section>
+
+                    <section>
+                        <img src="img/pagination_stats.png">
+                    </section>
+
+                    <section>
+                        <h3>Оптимізація GROUP BY</h3>
+                        <pre><code>
+EXPLAIN SELECT SQL_NO_CACHE * FROM salaries IGNORE INDEX(from_date) GROUP BY from_date;
+                        </code></pre>
+                        <p style="text-align: justify;">
+                            <strong>Extra: Using temporary; Using filesort</strong> - тобто, використовується тимчасова таблиця, яка потім ще й сортується без індексів
+                        </p>
+                        <p style="text-align: justify;">
+                            При використанні індекса <em>from_date</em> тимчасова таблиця не використовується.
+                            Також якщо сортування не потрібне можна явно вказати <em>ORDER BY NULL</em>
+
+                        </p>
                     </section>
 
                     <section>
@@ -616,7 +732,8 @@ FROM sakila.film INNER JOIN (
                             <ul>
                                 <li>Використовуються обмеження як і при пошукових запитах (використовується лівий префікс ключа)</li>
                                 <li>Якщо використовується не ліва частина, то в пошуковий запит повинен заповнити пропуск</li>
-                                <li>Якщо з'єднується декілька таблиць, використовуються індекси з першої таблиці</li>
+                                <li>Якщо з'єднується декілька таблиць, використовуються індекси з першої таблиці (якщо оптимізатор змінює порядок таблиць, потрібно в SELECT
+                                    додати команду <strong>STRAIGHT_JOIN</strong>)</li>
                             </ul>
 <pre><code>
 #(from_date, to_date)
