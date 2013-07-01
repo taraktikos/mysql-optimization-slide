@@ -51,7 +51,6 @@
                     * Типи даних
                     * Пошук вузьких місць
                     * Оптимізація запитів та індексування
-                    * Оптимізація параметрів сервера
                     * Реплікація
                 </section>
 
@@ -780,6 +779,33 @@ WHERE from_date = '1995-12-03' ORDER BY to_date
                     </section>
 
                     <section>
+                        <h3>Топологія реплікацій</h3>
+                    </section>
+
+                    <section>
+                        <h4>Один головний з декількома залежними</h4>
+                        <img src="img/top_rep1.png">
+                        <p style="text-align: justify">Ця конфігурація набільш корисна коли операцій запису мало а читання - багато</p>
+                    </section>
+
+                    <section>
+                        <h4>Головний головний</h4>
+                        <img src="img/top_rep2.png">
+                        <p style="text-align: justify">MySQL не підтримує дану конфігурацію до версії 5.6</p>
+                    </section>
+
+                    <section>
+                        <h4>Кільце</h4>
+                        <img src="img/top_rep3.png">
+                    </section>
+
+                    <section>
+                        <h4>Головний, головний-розподілювач і підлеглі</h4>
+                        <img src="img/top_rep4.png">
+                        <p style="text-align: justify">Для зменшення навантаження на головний сервер використовується розподілювач</p>
+                    </section>
+
+                    <section>
                         <h3>Налаштування головного сервера</h3>
 <pre><code>
 CREATE DATABASE test_replication;
@@ -833,7 +859,9 @@ SHOW SLAVE STATUS\G
                 </section>
 
                 <section>
-                    <h2>Дякую за увагу!</h2>
+                    <a href="https://docs.google.com/file/d/0B4uL4Q1_kVZlSXlpX0FkMm9sbXM/edit?usp=sharing">
+                        Покращення в MySQL 5.6
+                    </a>
                 </section>
 			</div>
 
