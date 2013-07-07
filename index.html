@@ -52,6 +52,7 @@
                     * Пошук вузьких місць
                     * Оптимізація запитів та індексування
                     * Реплікація
+                    * MySQL 5.6
                 </section>
 
                 <section>
@@ -859,9 +860,136 @@ SHOW SLAVE STATUS\G
                 </section>
 
                 <section>
-                    <a href="https://docs.google.com/file/d/0B4uL4Q1_kVZlSXlpX0FkMm9sbXM/edit?usp=sharing">
-                        Покращення в MySQL 5.6
-                    </a>
+                    <section>
+                        <h2>MySQL 5.6</h2>
+                    </section>
+
+                    <section>
+                        <h3>Основні напрями покращення в MySQL 5.6</h3>
+                        <ul>
+                            <li>Оптимізатор/виконання запитів</li>
+                            <li>InnoDB</li>
+                            <li>Реплікація</li>
+                            <li>Розширення типів і нові операції</li>
+                            <li>Memcached API для InnoDB</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Оптимізатор - Index Condition Pushdown</h3>
+                        <p style="text-align:justify;">
+                            <strong><a href="http://dev.mysql.com/doc/refman/5.6/en/index-condition-pushdown-optimization.html">Index Condition Pushdown</a></strong> - дана оптимізація виконується, якщо ми отримуємо доступ до даних таблиці з використанням складеного індекса. <em>INDEX (zipcode, lastname, firstname)</em>
+                        </p>
+                            <pre><code>
+SELECT * FROM people WHERE zipcode='95054'
+AND lastname LIKE '%etrunia%'
+AND address LIKE '%Main Street%';
+                            </code></pre>
+                        <p style="text-align:justify;">
+                            Без ICP MySql використає індес для першої умови і буде переглядати всі рядки в яких zipcode='95054'.
+                        </p>
+                        <p style="text-align:justify;">
+                            З ICP MySql перевіре умову <em>lastname LIKE '%etrunia%'</em> до сканування всієї таблиці.
+                            В полі extra команди EXPLAIN буде стояти <em>Using index condition</em>
+                        </p>
+                    </section>
+
+                    <section>
+                        <h3>Оптимізатор - Multi-Range Read</h3>
+                        <p style="text-align:justify;">
+                            <strong><a href="http://dev.mysql.com/doc/refman/5.6/en/mrr-optimization.html">Multi-Range Read</a></strong> - дана оптимізація виконується, для зменшення кількості читань диску при скануванні діапазону. Спочатку считуються всі необхідні дані з індексу, потім сортуються по ID, і після цього считуються послідовно по первинному ключі. MRR не використовується якщо можливо використати покриваючі індекси.
+                        </p>
+                            <pre><code>
+SELECT * FROM t WHERE key_part1 >= 1000 AND key_part1 < 2000 AND key_part2 = 10000;
+                            </code></pre>
+                        <p style="text-align:justify;">
+                            Без MRR MySql охопить всі кортежі key_part1 в діапазоні від 1000 до 2000 незалежно від key_part2.
+                        </p>
+                        <p style="text-align:justify;">
+                            З MRR сканування розбивається на кілька діапазонів для одного занчення key_part1(1000, 1001 ..., 1999). Для кожних таких сканів буде перевірятися умова key_part2 = 10000.
+                            В полі extra команди EXPLAIN буде стояти <em>Using MRR</em>
+                        </p>
+                    </section>
+
+                    <section>
+                        <h3>Оптимізатор - File Sort Optimization </h3>
+                        <p style="text-align:justify;">
+                            <strong><a href="http://dev.mysql.com/doc/refman/5.6/en/limit-optimization.html">File Sort Optimization</a></strong> - сортування по неіндексованому стовбцю стало більш продуктивнішим.
+                        </p>
+                            <pre><code>
+SELECT ... FROM single_table ... ORDER BY non_index_column [DESC] LIMIT [M,]N;
+                            </code></pre>
+                        <p style="text-align:justify;">
+                            Раніше, єдиним можливим варіантом було сортування злиттям, з використанням тимчасової таблиці, яка в кінці сортувалась і повертались дані які задовольняли умову LIMIT.
+                        </p>
+                        <p style="text-align:justify;">
+                            В 5.6, якщо кількість записів отриманих в результаті виконання запиту повністтю вміщається в <em>sort_buffer_size</em>, то при скануванні таблиці створюється черга. Розмір черги N, або M+N. При переповненні черги зайві дані відкидаються. Таким чином закінчення сортування виконується одночасно з закінченням запиту.
+                        </p>
+                    </section> 
+
+                    <section>
+                        <h3>InnoDB</h3>
+                        <ul>
+                            <li>Статична статистика для таблиць (зберігається при рестарті перестроюється командою 
+                            <em>ANALIZE TABLE</em>, в таблицях <em>mysql.innodb_index_stats, mysql.innodb_table_stats</em>)</li>
+                            <li>Підтримка повнотекстового пошуку</li>
+                            <li>Online ALTER (add/drop index, add/drop column, перейменування стовпців, <strong>не підтримується зміна типу стовпція</strong>)</li>
+                            <li>З'явилась можливість логування всіх deadlock-ів</li>
+                            <li>Transportable tablespaces (FLUSH TABLE ... FOR EXPORT)</li>
+                            <li><a href="http://dev.mysql.com/doc/refman/5.6/en/innodb-performance.html#innodb-persistent-stats">...</a></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>InnoDB</h3>
+                        <img src="img/mysql_56_innodb1.png">
+                    </section>
+
+                    <section>
+                        <h3>InnoDB</h3>
+                        <img src="img/mysql_56_innodb2.png">
+                    </section>
+
+                    <section>
+                        <h3>Реплікація</h3>
+                        <ul>
+                            <li>Підтримка Global Transaction Identifiers (GTID=source_id:transaction_id, CHANGE MASTER TO ... MASTER_AUTO_POSITION=1, --gtid_mode=on, @@gtid_ ...)</li>
+                            <li>Багатопоточний slave (паралелизм для БД, --slave-parallelworkers=N)</li>
+                            <li>Crash-safe slave (автоматичне відновлення реплікації після падіння, crash safe binary log,
+                            зберігання стану в таблицях)</li>
+                            <li>Реплікація з затримкою (CHANGE MASTER TO .. MASTER_DELAY=N)</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Розширення системи типів і нові операції</h3>
+                        <ul>
+                            <li>Підтримка мікросекунд для TIME, TIMESTAMP i DATETIME (2038-01-19 03:14:07.999999)</li>
+                            <li>Підтримка DEFAULT NOW()/ON UPDATE NOW() для DATETIME</li>
+                            <li>Підтримка декількох нових collations</li>
+                            <li>TO_BASE64()/FROM_BASE64() і WEIGHT_STRING()</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Memcached API для InnoDB</h3>
+                        <p style="text-align:justify;">MySQL 5.6 включає в себе інтерфейс NoSQL, використовуючи інтегрований Memcached демон, який може автоматично зберігати дані і витягувати їх з таблиці InnoDB, перетворюючи сервер MySQL у швидке "ключ-значення сховище" для однорядної вставки, оновлення або видалення.</p>
+                        <ul>
+                            <li>Daemon plugin для MySQL</li>
+                            <li>Прямий доступ до InnoDB</li>
+                            <li>Підтримка значень із декількох полів</li>
+                            <li>Опціонально підтримує локальний кеш</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <img src="img/innodb_memcached2.jpeg">
+                    </section>
+
+                </section>
+
+                <section>
+                    <h3>Дякую за увагу!</h3>
                 </section>
 			</div>
 
