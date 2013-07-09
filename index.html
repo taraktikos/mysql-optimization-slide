@@ -51,6 +51,7 @@
                     * Типи даних
                     * Пошук вузьких місць
                     * Оптимізація запитів та індексування
+                    * Оптимізація параметрів сервера
                     * Реплікація
                     * MySQL 5.6
                 </section>
@@ -61,7 +62,7 @@
                         <div class="simple-text">
                             <img src="img/monty.jpg" height="300" style="float:right; margin-left:20px;">
                             <p>
-                                Винахідником MySQL являється Майкл Монті Віденіус (aka Monty) із шведської компанії TcX. В 1979 році він розробив засіб
+                                Розробником MySQL являється Майкл Монті Віденіус (aka Monty) із шведської компанії TcX. В 1979 році він розробив засіб
                                 управління базами даних, яке називалось UNIREG.
                             </p>
                             <p>
@@ -91,7 +92,7 @@
                 <section>
 
                     <section>
-                        <h3>Логінча архітектура MySql</h3>
+                        <h3>Логічна архітектура MySql</h3>
                         <img src="img/mysql_architecture.png">
                     </section>
 
@@ -741,6 +742,48 @@ SELECT last_name, first_name FROM salaries
 LEFT JOIN employees USING(emp_no)
 WHERE from_date = '1995-12-03' ORDER BY to_date
 </code></pre>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Оптимізація параметрів сервера</h2>
+                    </section>
+
+                    <section>
+                        <h3>query_cache_size</h3>
+                        <p style="text-align: justify">Задає розмір доступної пам'яті для кешу запитів. Має значення для SELECT орієнтованих серверів</p>
+                    </section>
+
+                    <section>
+                        <h3>innodb_buffer_pool_size</h3>
+                        <p style="text-align: justify">Розмір в байтах буфера пам'яті яку InnoDB використовує для кешування даних та індексів своїх таблиць</p>
+                        <p style="text-align: justify">50-75% від доступної пам'яті</p>
+                    </section>
+
+                    <section>
+                        <h3>innodb_log_buffer_size</h3>
+                        <p style="text-align: justify">Розмір в байтах буфера, який InnoDB використовує для запису в лог-файли на диску. Значення за замовчуванням 8 МБ. Більший розмір зменшує кількість записів на диск.</p>
+                    </section>
+
+                    <section>
+                        <h3>innodb_flush_log_at_trx_commit</h3>
+                        <p style="text-align: justify">Можливі 3 значення:</p>
+                        <ul>
+                            <li>0 - операції в лог записуються раз в секунду. Працює найшвидше, але є ризик втратити дані при аварійній зупинці MySQL</li>
+                            <li>1 - (встановлено по замовченню) операції записуються на диск при кожній фіксації транзакції</li>
+                            <li>2 - операції записуються в буфер логу при кожній фіксації транзакції та записуються на диск раз в секнду</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>Утиліти</h3>
+                        <ul style="list-style: none;">
+                            <li><strong><em><a target="_blank" href="http://www.day32.com/MySQL/">tuning-primer.sh</a></em></strong> - показує поточний стан сервера та дає деякі рекомендації
+                            </li>
+                            <li><strong><em><a target="_blank" href="https://raw.github.com/major/MySQLTuner-perl/master/mysqltuner.pl">mysqltuner.pl</a></em></strong> - показує інформацію майже як попередня, але в іншому форматі
+                            </li>
+                        </ul>
                     </section>
                 </section>
 
