@@ -51,7 +51,6 @@
                     * Типи даних
                     * Пошук вузьких місць
                     * Оптимізація запитів та індексування
-                    * Оптимізація параметрів сервера
                     * Реплікація
                     * MySQL 5.6
                 </section>
@@ -177,7 +176,7 @@ COMMIT;
                         <h3>ACID</h3>
                         <p style="text-align: justify">
                             Транзакцій недостатньо, якщо система не проходе тест ACID (Atomicity, Consistency, Isolation, Durability) <br/>
-                            (Атомарність, несуперечливість, ізольованість, довговічність)
+                            (Атомарність, узгодженість, ізольованість, довговічність)
                         </p>
                     </section>
 
@@ -291,13 +290,12 @@ COMMIT;
                     <section>
                         <h3>MyIsam</h3>
                         <ul>
-                            <li>Один із найстаріших сховищ в MySQL</li>
-                            <li>Швидкий, добре працює у випадку "багато читаємо, мало пишем"</li>
+                            <li>Одне із найстаріших сховищ в MySQL</li>
+                            <li>Швидке, добре працює у випадку "багато читаємо, мало пишем"</li>
                             <li>Підтримує повнотекстові індекси</li>
                             <li>Індекс - B-tree</li>
-                            <li>Підтримується дописування в кінець (коли виконуюються запити на читання (конкурентні вставки))</li>
                             <li>Блокування на рівні таблиць</li>
-                            <li>Не підтримується цілісність даних між таблицями</li>
+                            <li>Не підтримує цілісність даних між таблицями</li>
                         </ul>
                     </section>
 
@@ -333,7 +331,7 @@ COMMIT;
 
                     <section>
                         <h3>MyISAM Merge</h3>
-                        <p style="text-align: justify">Це підсистема являється варіацією на тему MyISAM. Таблиця типу Merge представляє собою об'єднання
+                        <p style="text-align: justify">Ця підсистема являється варіацією на тему MyISAM. Таблиця типу Merge представляє собою об'єднання
                             декількох структурно однакових таблиць MyISAM в одну віртуальну таблицю. Корисно використовувати для ведення
                             логів і організації сховищ даних.</p>
                     </section>
@@ -341,7 +339,7 @@ COMMIT;
 
                     <section>
                         <h3>Підсистема Memory</h3>
-                        <p style="text-align: justify">Корисна коли необхідно виконувати бистрий доступ до даних, якщо нема необхідності
+                        <p style="text-align: justify">Корисна коли необхідно виконувати швидкий доступ до даних, якщо нема необхідності
                         в їх збереженні після перезапуску, для кешування періодично агрегованих даних, для проміжних результатів при аналізі даних.
                         Після перезапуску сервера структура зберігається, а дані втрачаються
                         </p>
@@ -356,8 +354,8 @@ COMMIT;
                     <section>
                         <h3>Підсистема Archive</h3>
                         <p style="text-align: justify">Дозволяє виконувати тільки команди INSERT і SELECT. З версії MySQL 5.1 підтримується
-                            індексування (в обмеженому вигляді). Рядки які вставляються зжимаються бібліотекою <em>zlib</em>.
-                            Кожеш запит SELECT потребує повного сканування.
+                            індексування. Рядки які вставляються зжимаються бібліотекою <em>zlib</em>.
+                            Кожен запит SELECT потребує повного сканування.
                         </p>
                         <p style="text-align: justify">Використовується для збору даних, в тих випадках коли при аналізі треба
                             сканувати всю таблицю, а також коли необхідно забезпечити швидке виконання інсертів на головному сервері реплікації.
@@ -390,7 +388,7 @@ COMMIT;
                     <section>
                         <h3>Типи FLOAT/DOUBLE/DECIMAL</h3>
                         <p style="text-align: justify">
-                            <strong>FLOAT, DOUBLE</strong> - дійсні типи, які допускають приблизні матетматичні обчислення.
+                            <strong>FLOAT, DOUBLE</strong> - дійсні типи, які допускають приблизні математичні обчислення.
                         </p>
                         <p style="text-align: justify">
                             <strong>DECIMAL</strong> - призначений для зберігання точних дробових значень. Використовується для операцій з грошима DECIMAL(10,2).
@@ -483,7 +481,7 @@ mysqlslap --user=root -proot --create-schema="test_employees"
 #log_slow_queries < 5.5.24
 slow_query_log_file     = /var/log/mysql/mysql-slow.log
 slow_query_log          = 1
-long_query_time         = 0.1
+long_query_time         = 1
 log-queries-not-using-indexes
                         </code></pre>
                     </section>
@@ -640,7 +638,7 @@ CREATE INDEX index_name ON table_name (column(length));
                     <section>
                         <img src="img/claster_index.png">
                     </section>
-
+<!--
                     <section>
                         <h3>База даних "Працівники"</h3>
                         <p>Структура</p>
@@ -651,7 +649,7 @@ CREATE INDEX index_name ON table_name (column(length));
                         <img src="img/salaries.png" />
                         <img src="img/titles.png" />
                     </section>
-
+-->
                     <section>
                         <h3>Ізоляція стовпця</h3>
                         <p>MySql не може використовувати індекс по стовпцю, якщо він не ізольований в запиті</p>
@@ -693,7 +691,7 @@ WHERE from_date = '1995-12-03' AND to_date = '1996-12-02'
                             Наприклад, посторінкову навігацію, якщо даних багато, можа оптимізувати наступним чином.
                         </p>
                         <pre><code>
-SELECT SQL_NO_CACHE emp_no, from_date FROM salaries ORDER BY emp_no LIMIT 2100000,5
+SELECT SQL_NO_CACHE * FROM salaries ORDER BY emp_no LIMIT 2100000,5
                         </code></pre>
 
                         <pre><code>
@@ -859,7 +857,7 @@ GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO repl@'%' IDENTIFIED BY 'pa
 server-id     = 1
 log_bin       = /var/log/mysql/mysql-bin.log
 #binlog_wild_do_table = test_replication.%
-binlog_do_db             = test_replication
+binlog_do_db  = test_replication
 </code></pre>
 <pre><code>
 SHOW MASTER STATUS;
@@ -878,7 +876,7 @@ relay_log         = /var/log/mysql/mysql-relay-bin.log
 log_slave_updates = 1 #вказує щоб залежний сервер записував події в свій власний бінарний лог
 read_only         = 1
 #replicate_wild_do_table = test_replication.%
-replicate_do_db             = test_replication
+replicate_do_db   = test_replication
 </code></pre>
                     </section>
 
