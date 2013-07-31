@@ -45,7 +45,7 @@
                 <section data-markdown>
                     ## План
 
-                    * Іторія MySql
+                    * Історія MySql
                     * Архітектура
                     * Типи сховищ
                     * Типи даних
@@ -57,7 +57,7 @@
 
                 <section>
                     <section>
-                        <h3>Іторія MySql</h3>
+                        <h3>Історія MySql</h3>
                         <div class="simple-text">
                             <img src="img/monty.jpg" height="300" style="float:right; margin-left:20px;">
                             <p>
@@ -97,7 +97,7 @@
 
                     <section>
                         <img height="100" style="float: right; margin-top: -45px;" src="img/connection.jpg">
-                        <h3>Керування з'єднанями</h3>
+                        <h3>Керування з'єднаннями</h3>
                         <p style="text-align: justify">
                             Для кожного клієнтського з'єднання виділяється окремий потік в середині процеса сервера.
                             Запити по даному з'єднанню виконуються в межах цього потоку. Сервер кешує потоки, так що їх
@@ -149,7 +149,7 @@
                     <section>
                         <p style="text-align: justify">
                             <strong>Блокування на рівні таблиць</strong> (MyIsam) <br/>
-                            Для таких команд як ALTER TABLE, сервер реалізовує табличне блокування не залежно від підсистеми збереження даних.
+                            Для таких команд як ALTER TABLE, сервер виконує табличне блокування не залежно від підсистеми збереження даних.
                         </p>
                         <p style="text-align: justify">
                             <strong>Блокування рядків</strong> (InnoDB и Falcon) <br/>
@@ -191,7 +191,7 @@ COMMIT;
                     <section>
                         <ul style="list-style: none; font-size: 22px">
                             <li>
-                                <strong>READ UNCOMMITTED</strong> - транзакції можуть бачити результати незафіксовани транзакцій
+                                <strong>READ UNCOMMITTED</strong> - транзакції можуть бачити результати незафіксованих транзакцій
                             </li>
                             <li class="">
                                 <strong>READ COMMITTED</strong> - транзакції можуть бачити тільки ті зміни, які були зафіксовані
@@ -204,7 +204,7 @@ COMMIT;
                                 Можливий феномен <em>фантомного читання</em>
                             </li>
                             <li class="">
-                                <strong>SERIALIZABLE</strong> - блокує кожну строку, яку транзакція читає. На цьому рівні виникає
+                                <strong>SERIALIZABLE</strong> - блокує кожен рядок, який транзакція читає. На цьому рівні виникає
                                 багато затримок і конфліктів при блокуваннях.
                             </li>
                         </ul>
@@ -353,8 +353,7 @@ COMMIT;
 
                     <section>
                         <h3>Підсистема Archive</h3>
-                        <p style="text-align: justify">Дозволяє виконувати тільки команди INSERT і SELECT. З версії MySQL 5.1 підтримується
-                            індексування. Рядки які вставляються зжимаються бібліотекою <em>zlib</em>.
+                        <p style="text-align: justify">Дозволяє виконувати тільки команди INSERT і SELECT. Рядки які вставляються зжимаються бібліотекою <em>zlib</em>.
                             Кожен запит SELECT потребує повного сканування.
                         </p>
                         <p style="text-align: justify">Використовується для збору даних, в тих випадках коли при аналізі треба
@@ -410,7 +409,7 @@ COMMIT;
                         <h3>Типи Datetime і Timestamp</h3>
                         <p style="text-align: justify">
                             <strong>DATETIME</strong> - дозволяє зберігати час у діапазоні з 1001 до 9999 року. Зберігається у вигляді цілого числа в форматі
-                            YYYYMMDDHHMMSS <strong>незалежно від часового поясу</strong>. Використовує 8 байт.
+                            YYYYMMDDHHMMSS <strong>залежить від часового поясу</strong>. Використовує 8 байт.
                         </p>
                         <pre><code>
 create table `dt1` (col datetime NOT NULL);
@@ -421,7 +420,7 @@ insert into dt1 values(now());
 SET @@session.time_zone='+01:00';
 insert into dt1 values(now());
 
-SET @@session.time_zone='+00:00'; #не залежно від часового поясу дата буде однаковою
+SET @@session.time_zone='+00:00'; #незалежно від часового поясу дата буде однаковою
 select * from dt1;
                         </code></pre>
                     </section>
@@ -476,14 +475,17 @@ mysqlslap --user=root -proot --create-schema="test_employees"
                     </section>
 
                     <section>
-                        <h3>Ведення протоколу повільних запитів</h3>
+                        <h3>Ведення логу повільних запитів</h3>
                         <pre><code>
 #log_slow_queries < 5.5.24
 slow_query_log_file     = /var/log/mysql/mysql-slow.log
 slow_query_log          = 1
 long_query_time         = 1
 log-queries-not-using-indexes
+#з версії 5.6
+log_output = TABLE|FILE|NONE  #default FILE
                         </code></pre>
+                        <p style="text-align:justify;">TABLE - логи будуть записуватись відповідно в таблиці <em>general_log</em> та <em>slow_log</em> бази даних <em>mysql</em></p>
                     </section>
 
                     <section>
@@ -615,7 +617,7 @@ CREATE INDEX index_name ON table_name (column(length));
                     </section>
 
                     <section>
-                        <h3>Повнотекстові індекси</h3>
+                        <h3>Повнотекстовий індекс</h3>
                         <p style="text-align: justify">Дозволяє шукати в тексті ключові слова а не просто порівнювати шукане значення із значенням в стовбці.</p>
                         <p style="text-align: justify">Призначений для операцій <em>MATCH AGAINST</em> і не прцює в конструкції <em>WHERE</em></p>
                     </section>
@@ -971,7 +973,7 @@ SELECT ... FROM single_table ... ORDER BY non_index_column [DESC] LIMIT [M,]N;
                     <section>
                         <h3>InnoDB</h3>
                         <ul>
-                            <li>Статична статистика для таблиць (зберігається при рестарті перестроюється командою 
+                            <li>Статична статистика для таблиць (зберігається при рестарті перебудовується командою 
                             <em>ANALIZE TABLE</em>, в таблицях <em>mysql.innodb_index_stats, mysql.innodb_table_stats</em>)</li>
                             <li>Підтримка повнотекстового пошуку</li>
                             <li>Online ALTER (add/drop index, add/drop column, перейменування стовпців, <strong>не підтримується зміна типу стовпція</strong>)</li>
@@ -1044,7 +1046,7 @@ SELECT ... FROM single_table ... ORDER BY non_index_column [DESC] LIMIT [M,]N;
 			// Full list of configuration options available here:
 			// https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
-                width: 1200,
+                width: 1000,
                 minScale: 1,
                 maxScale: 1.0,
 				controls: true,
